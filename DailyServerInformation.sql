@@ -12,7 +12,7 @@ create table #tmp(      id int not null identity(1, 1), result varchar(255))
 insert into #tmp exec master.dbo.xp_cmdshell 'systeminfo'
  
 create table #tmp2(     id int not null identity(1, 1), result varchar(255))
-insert into #tmp2 exec xp_cmdshell 'dir j:\clcmsd01_daily_backup\*.sqb /o-d /n'
+insert into #tmp2 exec xp_cmdshell 'dir j:\*.sqb /o-d /n'
  
 create table #DriveTable (Drive varchar(1),[MB Free] int)
 insert into #DriveTable Exec xp_fixeddrives
@@ -28,39 +28,7 @@ declare @actualspace as varchar(20)
  
 set @datadrive ='F:\'
  
-select @backupPath =(
-case 
-when @@servername ='ACCOUNTING3'    then 'D:\ACCOUNTING3_Daily_Backup'
-when @@servername ='APPS'                 then ''
-when @@servername ='CLCMSSQL01'           then 'L:\Backups'
-when @@servername ='CLCOMAPPS01'    then 'D:\Accounting3_Daily_Backup'
-when @@servername ='CLCMSD01'       then 'J:\CLCMSD01_Daily_Backup'
-when @@servername ='CLCOMD01'       then 'J:\CLCOMD01_Daily_Backup'
-when @@servername ='CLCOMSQL01'           then 'L:\DailyBackup'
-when @@servername ='CLCOMSQL02'           then 'L:\Backup'
-when @@servername ='CLCOMSQL04'           then 'D:\CLCOMSQL04_Daily'
-when @@servername ='CLDMZWEBAPP01'  then 'C:\BACKUPS'
-when @@servername ='CLCMSD03'       then 'E:\Backup'
-when @@servername ='HDICMS4'        then 'D:\HDICMS4DailyBackups'
-when @@servername ='HDIDA1'               then 'E:\HDIDA1_DailyBackups'
-when @@servername ='HDIIT02'        then 'J:\Backup'
-when @@servername ='HDILOAD01'            then 'L:\HDILOAD01_Daily'
-when @@servername ='HDILOAD02'            then 'L:\HDILOAD02_Daily'
-when @@servername ='HDINPSQL01'           then 'E:\Datafiles\Backups'
-when @@servername ='HDIQUERY02'           then 'L:\HDIQUERY02_Daily'
-when @@servername ='HDIQUERY03'           then 'L:\HDIQUERY03_Daily'
-when @@servername ='HDIRACFTP'            then ''
-when @@servername ='HDIRPT01'       then 'E:\HDIRPT01_Daily_Backups'
-when @@servername ='LVAXOSVR'       then 'G:\DB-Backup'
-when @@servername ='LVCMSD02'       then 'L:\LVCMSD02DailyBackups'
-when @@servername ='LVNPTESTSRV01'  then ''
-when @@servername ='LVSPOINT02'           then 'C:\LVSPOINT02_Daily_Backups'
-when @@servername ='REPORTSVR_1'    then ''
-when @@servername ='SQLSERVER'            then '\\SQLSERVER2\SQLSERVERBU$\SQLSERVER'
-when @@servername ='SQLSERVER2'           then ''
-when @@servername ='VMLVPNT01'            then ''
-when @@servername ='VMCLCOMSQL03'   then ''
-end)
+select @backupPath ='L:\Backups'
  
 SELECT @freespace =([MB Free]/1024) FROM #DriveTable where Drive in ( 
 select distinct left(physical_device_name,1) 'Backup' from msdb.dbo.backupmediafamily)
@@ -103,39 +71,7 @@ declare @sql varchar(5000)
 declare @qtr integer
 declare @backupPath varchar(100)
  
-select @backupPath =(
-case 
-when @@servername ='ACCOUNTING3'    then 'D:\ACCOUNTING3_Daily_Backup'
-when @@servername ='APPS'                 then ''
-when @@servername ='CLCMSSQL01'           then 'L:\Backups'
-when @@servername ='CLCOMAPPS01'    then 'D:\Accounting3_Daily_Backup'
-when @@servername ='CLCMSD01'       then 'J:\CLCMSD01_Daily_Backup'
-when @@servername ='CLCOMD01'       then 'J:\CLCOMD01_Daily_Backup'
-when @@servername ='CLCOMSQL01'           then 'L:\DailyBackup'
-when @@servername ='CLCOMSQL02'           then 'L:\Backup'
-when @@servername ='CLCOMSQL04'           then 'D:\CLCOMSQL04_Daily'
-when @@servername ='CLDMZWEBAPP01'  then 'C:\BACKUPS'
-when @@servername ='CLCMSD03'       then 'E:\Backup'
-when @@servername ='HDICMS4'        then 'D:\HDICMS4DailyBackups'
-when @@servername ='HDIDA1'               then 'E:\HDIDA1_DailyBackups'
-when @@servername ='HDIIT02'        then 'J:\Backup'
-when @@servername ='HDILOAD01'            then 'L:\HDILOAD01_Daily'
-when @@servername ='HDILOAD02'            then 'L:\HDILOAD02_Daily'
-when @@servername ='HDINPSQL01'           then 'E:\Datafiles\Backups'
-when @@servername ='HDIQUERY02'           then 'L:\HDIQUERY02_Daily'
-when @@servername ='HDIQUERY03'           then 'L:\HDIQUERY03_Daily'
-when @@servername ='HDIRACFTP'            then ''
-when @@servername ='HDIRPT01'       then 'E:\HDIRPT01_Daily_Backups'
-when @@servername ='LVAXOSVR'       then 'G:\DB-Backup'
-when @@servername ='LVCMSD02'       then 'L:\LVCMSD02DailyBackups'
-when @@servername ='LVNPTESTSRV01'  then ''
-when @@servername ='LVSPOINT02'           then 'C:\LVSPOINT02_Daily_Backups'
-when @@servername ='REPORTSVR_1'    then ''
-when @@servername ='SQLSERVER'            then '\\SQLSERVER2\SQLSERVERBU$\SQLSERVER'
-when @@servername ='SQLSERVER2'           then ''
-when @@servername ='VMLVPNT01'            then ''
-when @@servername ='VMCLCOMSQL03'   then ''
-end)
+select @backupPath ='L:\Backups'
  
 if object_id('tempdb..#temp1') is not null
                   drop table #temp1
@@ -161,7 +97,7 @@ create table #temp2 (
 ) on [PRIMARY]
  
 insert into #temp2 ([dbname])
-select [name] from master.dbo.sysdatabases where name not in ('master','tempdb','model','msdb','distribution','RecoupCMS_20100901')
+select [name] from master.dbo.sysdatabases where name not in ('master','tempdb','model','msdb','distribution')
  
 declare @criteria as varchar(100)
 declare rs1 cursor for 

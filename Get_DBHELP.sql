@@ -2,7 +2,7 @@
    Procedure: Get_DBHELP.sql
   Written on: 9/3/2009
   Written by: Alex State
-     Purpose: To keep a log of the many databases used by HDI.  The table is kept on HDIRPT01.HDIEventLog.DatabaseInfo.  
+     Purpose: To keep a log of the many databases.  The table is kept on DatabaseInfo.  
 	      This script is run just once for each server using the Red Gate Multiscript tool.
 */
 /*
@@ -28,7 +28,7 @@ INSERT INTO #DatabaseInfo (
 exec sp_helpdb
 /*
 go
-INSERT INTO [hdirpt01].[HDIEventLog].[dbo].[DatabaseInfo] (
+INSERT INTO [dbo].[DatabaseInfo] (
 	    [name]
            ,[db_size]
            ,[owner]
