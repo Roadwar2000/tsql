@@ -3,7 +3,7 @@
 * Revision 1.0
 * Purpose: This script searches all databases for orphaned users and displays a list. If desired the orphaned users can be deleted
 *
-* Revised by Alex State for HMS
+* Revised by Alex State
 *
 */
 Use master
