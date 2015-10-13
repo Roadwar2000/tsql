@@ -1,6 +1,3 @@
-use mst_lookuptables
-go
-
 SELECT object_id AS ObjectID,
   index_id AS IndexID,
   avg_fragmentation_in_percent AS PercentFragment,
