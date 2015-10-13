@@ -1,0 +1,1 @@
+exec xp_fixeddrives

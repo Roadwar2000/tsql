@@ -1,0 +1,88 @@
+/*
+* Script written by Dale Kelly 11/23/2011
+* Revision 1.0
+* Purpose: This script searches all databases for orphaned users and displays a list. If desired the orphaned users can be deleted
+*
+* Revised by Alex State for HMS
+*
+*/
+Use master
+GO
+SET NOCOUNT ON 
+DECLARE @DBName sysname = '', @Qry nvarchar(4000) = ''
+Declare @SQL as varchar (200)
+Declare @DDBName varchar (100)
+Declare @Orphanname varchar (100)
+Declare @DBSysSchema varchar (100)
+Declare @From int =0
+Declare @To int
+Declare @Debug int = 1
+
+Create Table #Orphans 
+ (
+  RowID     int not null primary key identity(1,1) ,
+  TDBName varchar (100),
+  UserName varchar (100),
+  UserSid varbinary(85)
+ )
+
+WHILE @DBName IS NOT NULL
+BEGIN
+   SET @DBName = 
+   (
+	  SELECT MIN(name) 
+	  FROM master..sysdatabases 
+	  WHERE
+	  /** to exclude named databases add them to the Not In clause **/
+	  name NOT IN 
+	  ('model', 'msdb', 'distribution')
+	  And DATABASEPROPERTY(name, 'IsOffline') = 0 
+	  AND DATABASEPROPERTY(name, 'IsSuspect') = 0 
+	  AND name > @DBName
+   )
+
+   IF @DBName IS NULL BREAK
+         
+   Set @Qry = 'select ''' + @DBName + ''' as DBName, name AS UserName, sid AS UserSID from [' + @DBName + ']..sysusers where issqluser = 1 and (sid is not null and sid <> 0x0) and suser_sname(sid) is null order by name'
+   Insert into #Orphans 
+   Exec (@Qry)
+END
+Select * from #Orphans
+
+SELECT *
+from #Orphans
+SET @To = @@ROWCOUNT 
+
+Print @From
+Print @To
+While @From < @To
+Begin
+	Set @From = @From + 1
+  
+	Select @DDBName = TDBName, @Orphanname = UserName from #Orphans
+	Where RowID = @From
+      
+	Set @DBSysSchema = '[' + @DDBName + ']' + '.[sys].[schemas]'
+	print @DBsysSchema
+	Print @DDBname
+	Print @Orphanname
+	set @SQL = 'If Exists (Select * from ' + @DBSysSchema + ' where name = ''' + @Orphanname + ''')	Begin Use ' + @DDBName + ' Drop Schema [' + @Orphanname + '] End'
+	print @SQL
+	IF @Debug <> 1
+	BEGIN
+		Exec (@SQL)
+	END
+     
+	Begin Try
+		Set @SQL = 'Use ' + @DDBName + ' Drop User [' + @Orphanname + ']'
+		print @SQL
+		IF @Debug <> 1
+		BEGIN
+			Exec (@SQL)
+		END
+	End Try
+	Begin Catch
+	End Catch
+END
+ 
+Drop table #Orphans
